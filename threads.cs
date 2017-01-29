@@ -1,48 +1,41 @@
 using System;
+using System.Text;
 using System.Threading;
-public class Program
+
+
+class Program
 {
-    public static void Main(string[] args)
+  const int n = 20;
+  static int c = 0;
+  static void Threading(int i, Token t)
+  {
+    if (i<n)
     {
-        int n = int.Parse(Console.ReadLine());
-        Rebel rebel = new Rebel();
-        rebel.data = "Death star plans";
-        rebel.recipient = n;
-        Rogue runner = new Rogue();
-        runner.Run(rebel, n);
+      Console.WriteLine(i+ " thread initialized");
+      Thread thread = new Thread(() => Threading(i + 1, t));
+      thread.Start();
+      Thread.Sleep(n);
+      if (t.Recipient == i)
+      {
+        Console.WriteLine(t.Data + " received in " + i + " thread");
+        c=1;
+      }
     }
+  }
+  static void Main(string[] args)
+  {
+    Console.WriteLine("vvedite celevoi potok");
+    int k=int.Parse(Console.ReadLine());
+    Token token=new Token(){Recipient = k, Data = "data"};
+    Thread thread = new Thread(() => { Threading(1, token); });
+    thread.Start();
+    Thread.Sleep(n*2+1);
+    if (c==0){Console.WriteLine("Povorot ne tuda");}
+  }
 }
-
-public class Rogue
+public class Token
 {
-    private Rebel rebel;
-
-    public void Run(Rebel rebel, int n)
-    {
-        this.rebel = rebel;
-        for (int i = 1; i <= n; i++)
-        {
-            Thread thread = new Thread(Func); 
-            thread.Start(i);
-        }
-        
-    }
-
-    private void Func(object data)
-    {
-        lock (rebel)
-        {
-            int threadNum = (int)data;
-            Console.WriteLine("thread #{0}", threadNum);
-            if (rebel.recipient == threadNum) {
-                Console.WriteLine("{0} received", rebel.data);
-            }
-        }
-    }
-}
-
-public class Rebel
-{
-    public string data;
-    public int recipient;
+  public string Data;
+  public int Recipient; 
+ 
 }
